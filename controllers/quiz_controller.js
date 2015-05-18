@@ -2,8 +2,14 @@ var models = require('../models/models.js');
 
 // Autoload - factoriza el código si ruta incluye :quizId
 exports.load = function(req, res, next, quizId) {
-  models.Quiz.find(quizId).then(
-    function(quiz) {
+ models.Quiz.find({
+            where: {
+                id: Number(quizId)
+            },
+            include: [{
+                model: models.Comment
+            }]
+        }).then(function(quiz) {
       if (quiz) {
         req.quiz = quiz;
         next();
@@ -73,7 +79,8 @@ exports.create = function(req, res) {
           // res.redirect: Redirección HTTP a lista de preguntas}
         }  
       }
-    );
+    ).catch(function(error){next(error)});
+
 };
 
 
@@ -100,5 +107,14 @@ exports.update = function(req, res) {
         .then( function(){ res.redirect('/quizes');});
       }     // Redirección HTTP a lista de preguntas (URL relativo)
     }
-  );
+  ).catch(function(error){next(error)});
 };
+
+// DELETE /quizes/:id
+exports.destroy = function(req, res) {
+  req.quiz.destroy().then( function() {
+    res.redirect('/quizes');
+  }).catch(function(error){next(error)});
+};
+
+//  console.log("req.quiz.id: " + req.quiz.id);
