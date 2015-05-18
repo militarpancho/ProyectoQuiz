@@ -4,7 +4,7 @@ var router = express.Router();
 var quizController = require('../controllers/quiz_controller');
 var commentController = require('../controllers/comment_controller');
 var sessionController = require('../controllers/session_controller');
-
+var statsController = require('../controllers/stats_controller');
 // Página de entrada
 router.get('/', function(req, res) {
   res.render('index', { title: 'Quiz', errors: [] });
@@ -16,9 +16,9 @@ router.param('quizId', quizController.load); //autoload :quizId
 router.param('commentId', commentController.load); //autoload :commentId
 
 // Definición de rutas de sesion
-+router.get('/login',  sessionController.new);     // formulario login
-+router.post('/login', sessionController.create);  // crear sesión
-+router.get('/logout', sessionController.destroy); // destruir sesión
+router.get('/login',  sessionController.new);     // formulario login
+router.post('/login', sessionController.create);  // crear sesión
+router.get('/logout', sessionController.destroy); // destruir sesión
 
 
 // Definición de rutas de /quizes
@@ -36,6 +36,7 @@ router.post('/quizes/:quizId(\\d+)/comments',              commentController.cre
 router.get('/quizes/:quizId(\\d+)/comments/:commentId(\\d+)/publish', 
 	                                    sessionController.loginRequired, commentController.publish);
 
+router.get('/quizes/statistics', 		sessionController.loginRequired,    statsController.show);
 
 router.get('/author',function(req, res){
 	res.render('author', {errors: []});
