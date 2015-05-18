@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var https = require('https');
+var fs = require('fs');
 var partials = require('express-partials');
 var methodOverride = require('method-override');
 var session = require('express-session');
@@ -34,7 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(function(req, res, next) {
 
   // guardar path en session.redir para despues de login
-  if (!req.path.match(/\/login|\/logout/)) {
+  if (!req.path.match(/\/login|\/logout|\/user/)) {
     req.session.redir = req.path;
   }
 
@@ -42,6 +43,23 @@ app.use(function(req, res, next) {
   res.locals.session = req.session;
   next();
 });
+
+//Logout automático
+app.use(function(req,res,next){
+    if (req.session.user){
+        if(req.session.user.inicio){
+            console.log("user: "+req.session.user.inicio+" \n");
+            console.log(new Date().getTime()+" \n");
+            if((new Date().getTime()-req.session.user.inicio)>120000){
+                req.session.user = undefined;
+               
+            }else {req.session.user.inicio = new Date().getTime();}
+           
+        } else {req.session.user.inicio = new Date().getTime();}
+
+    }
+    next();
+});    
 
 app.use('/', routes);
 
